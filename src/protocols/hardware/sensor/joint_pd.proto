@@ -1,0 +1,41 @@
+// Copyright (c) 2023, AgiBot Inc.
+// All rights reserved.
+
+syntax = "proto3";
+
+import "header.proto";
+
+package aimrt.protocols.sensor;
+
+// Represents the state of a single joint with stiffness and damping values.
+message SingleJointPdState {
+  // The name of the joint.
+  string name = 1;
+
+  // The current position of the joint
+  // (e.g., angle in radians or distance in meters).
+  double position = 2;
+
+  // The current velocity of the joint
+  // (e.g., angular velocity in rad/s or linear velocity in m/s).
+  double velocity = 3;
+
+  // The effort applied to the joint
+  // (e.g., torque in Nm or force in N).
+  double effort = 4;
+
+  // The stiffness (or spring constant) associated with the joint's controller.
+  double stiffness = 5;
+
+  // The damping coefficient associated with the joint's controller.
+  double damping = 6;
+}
+
+// Represents the state of multiple joints in a robotic system at a given time.
+message JointPdState {
+  // Common header containing timestamp and other metadata.
+  aimrt.protocols.common.Header header = 1;
+
+  // A list of SingleJointPdState messages, each representing the state of a specific joint.
+  repeated SingleJointPdState data = 2;
+}

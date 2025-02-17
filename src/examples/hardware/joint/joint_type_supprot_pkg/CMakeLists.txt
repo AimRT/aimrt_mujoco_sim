@@ -23,10 +23,28 @@ add_library(${CUR_TARGET_ALIAS_NAME} ALIAS ${CUR_TARGET_NAME})
 target_sources(${CUR_TARGET_NAME} PRIVATE ${src})
 
 # Set link libraries of target
-target_link_libraries(
-  ${CUR_TARGET_NAME}
-  PRIVATE aimrt::interface::aimrt_type_support_pkg_c_interface
-          aimrt::interface::aimrt_module_protobuf_interface
-          aimrt_mujoco_sim::protocols::sensor_pb_gencode)
+set(BASE_DEPENDENCIES
+    aimrt::interface::aimrt_type_support_pkg_c_interface #
+    aimrt::interface::aimrt_module_protobuf_interface #
+    aimrt_mujoco_sim::protocols::sensor_pb_gencode)
+
+if(AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2)
+  find_package(rclcpp REQUIRED)
+
+  target_compile_definitions(${CUR_TARGET_NAME} PRIVATE AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2)
+
+  target_link_libraries(
+    ${CUR_TARGET_NAME}
+    PRIVATE ${BASE_DEPENDENCIES} #
+            aimrt::interface::aimrt_module_ros2_interface #
+            sensor_ros2::sensor_ros2__rosidl_generator_cpp #
+            sensor_ros2::sensor_ros2__rosidl_typesupport_cpp #
+            sensor_ros2::sensor_ros2__rosidl_typesupport_fastrtps_cpp #
+            sensor_ros2::sensor_ros2__rosidl_typesupport_introspection_cpp)
+else()
+  target_link_libraries(${CUR_TARGET_NAME} PRIVATE ${BASE_DEPENDENCIES})
+endif()
+
 # Set misc of target
 set_target_properties(${CUR_TARGET_NAME} PROPERTIES OUTPUT_NAME ${CUR_DIR})
+

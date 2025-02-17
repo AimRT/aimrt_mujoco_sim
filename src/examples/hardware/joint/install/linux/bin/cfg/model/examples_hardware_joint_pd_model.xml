@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+This model file incorporates concepts and elements inspired by the official 
+MuJoCo example model "car.xml" provided by Google DeepMind, available at:
+https://github.com/google-deepmind/mujoco/blob/main/model/car/car.xml
+
+The original work is used under the terms of its open source license. 
+Any modifications or adaptations are the responsibility of this project's authors. 
+-->
+<mujoco model="car">
+  <compiler eulerseq="XYZ" fitaabb="true" angle="radian"  autolimits="true"/>  
+  <option timestep="0.001" gravity="0 0 -9.81"/>  
+  <asset>
+    <texture name="skybox" type="skybox" builtin="gradient" rgb1="0.2 0.3 0.4" rgb2="0 0 0" width="1000" height="1000" mark="random" random="0.001" markrgb="1 1 1"/>  
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8" width="1000" height="1000"/>  
+    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2"/> 
+    <mesh name="chasis" scale=".01 .006 .0015"
+      vertex=" 9   2   0
+              -10  10  10
+               9  -2   0
+               10  3  -10
+               10 -3  -10
+              -8   10 -10
+              -10 -10  10
+              -8  -10 -10
+               0   0   20"/>
+  </asset>
+
+  <default>
+    <joint damping=".01"/>
+  </default>
+
+  <worldbody>
+    <geom name="floor" pos="0 0 -0.5" size="0 0 1" type="plane" material="groundplane"/>
+    <light directional="true" diffuse=".8 .8 .8" specular=".2 .2 .2" pos="0 0 5" dir="0 0 -1"/>
+    <body name="car" pos="0 0 .03">
+      <freejoint/>
+      <light name="top light" pos="0 0 2" mode="trackcom" diffuse=".4 .4 .4"/>
+      <geom name="chasis" type="mesh" mesh="chasis" rgba="0.7 0.1 0 0.8"/>
+      <geom name="front wheel" pos=".08 0 -.015" type="sphere" size=".015" condim="1" priority="1" rgba="0 0 0 1"/>
+      <light name="front light" pos=".1 0 .02" dir="2 0 -1" diffuse="1 1 1"/>
+      <body name="left wheel" pos="-.07 .06 0" zaxis="0 1 0">
+        <joint name="left_wheel" type="hinge"/>
+        <geom type="cylinder" size=".03 .01" rgba="0 0 0 1"/>
+        <geom type="cylinder" size=".01 .011" rgba="0.8 0.8 0.8 1"/>
+      </body>
+      <body name="right wheel" pos="-.07 -.06 0" zaxis="0 1 0">
+        <joint name="right_wheel" type="hinge"/>
+        <geom type="cylinder" size=".03 .01" rgba="0 0 0 1"/>
+        <geom type="cylinder" size=".01 .011" rgba="0.8 0.8 0.8 1"/>
+      </body>
+    </body>
+  </worldbody>
+
+
+  <actuator>
+    <motor name="right_motor" joint="right_wheel" ctrlrange="-1 1"/>
+    <motor name="left_motor" joint="left_wheel" ctrlrange="-1 1"/>
+  </actuator>
+
+  <sensor>
+    <jointvel name="right_vel_sensor" joint="right_wheel"/>
+    <jointvel name="left_vel_sensor" joint="left_wheel"/>
+    <jointactuatorfrc name="right_frc_sensor" joint="right_wheel"/>
+    <jointactuatorfrc name="left_frc_sensor" joint="left_wheel"/>
+  </sensor>
+</mujoco>
+
+

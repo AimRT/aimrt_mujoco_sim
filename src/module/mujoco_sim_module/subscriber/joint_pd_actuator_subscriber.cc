@@ -1,14 +1,14 @@
 // Copyright (c) 2023, AgiBot Inc.
 // All rights reserved.
 
-#include "mujoco_sim_module/subscriber/joint_actuator_subscriber.h"
+#include "mujoco_sim_module/subscriber/joint_pd_actuator_subscriber.h"
 #include "aimrt_module_protobuf_interface/channel/protobuf_channel.h"
 #include "aimrt_module_protobuf_interface/util/protobuf_tools.h"
 
 namespace YAML {
 template <>
-struct convert<aimrt_mujoco_sim::mujoco_sim_module::subscriber::JointActuatorSubscriber::Options> {
-  using Options = aimrt_mujoco_sim::mujoco_sim_module::subscriber::JointActuatorSubscriber::Options;
+struct convert<aimrt_mujoco_sim::mujoco_sim_module::subscriber::JointPdActuatorSubscriber::Options> {
+  using Options = aimrt_mujoco_sim::mujoco_sim_module::subscriber::JointPdActuatorSubscriber::Options;
 
   static Node encode(const Options& rhs) {
     Node node;
@@ -50,7 +50,7 @@ struct convert<aimrt_mujoco_sim::mujoco_sim_module::subscriber::JointActuatorSub
 
 namespace aimrt_mujoco_sim::mujoco_sim_module::subscriber {
 
-void JointActuatorSubscriber::Initialize(YAML::Node options_node) {
+void JointPdActuatorSubscriber::Initialize(YAML::Node options_node) {
   if (options_node && !options_node.IsNull())
     options_ = options_node.as<Options>();
 
@@ -58,14 +58,14 @@ void JointActuatorSubscriber::Initialize(YAML::Node options_node) {
 
   options_node = options_;
 
-  bool ret = aimrt::channel::Subscribe<aimrt::protocols::sensor::JointState>(
+  bool ret = aimrt::channel::Subscribe<aimrt::protocols::sensor::JointPdState>(
       subscriber_,
-      std::bind(&JointActuatorSubscriber::EventHandle, this, std::placeholders::_1));
+      std::bind(&JointPdActuatorSubscriber::EventHandle, this, std::placeholders::_1));
 
   AIMRT_CHECK_ERROR_THROW(ret, "Subscribe failed.");
 }
 
-void JointActuatorSubscriber::ApplyCtrlData() {
+void JointPdActuatorSubscriber::ApplyCtrlData() {
   auto* current_command_array = command_array_.exchange(nullptr);
   if (current_command_array != nullptr) {
     // new data, update control value
@@ -77,7 +77,7 @@ void JointActuatorSubscriber::ApplyCtrlData() {
   }
 }
 
-void JointActuatorSubscriber::EventHandle(const std::shared_ptr<const aimrt::protocols::sensor::JointState>& commands) {
+void JointPdActuatorSubscriber::EventHandle(const std::shared_ptr<const aimrt::protocols::sensor::JointPdState>& commands) {
   if (stop_flag_) [[unlikely]]
     return;
 
@@ -101,7 +101,12 @@ void JointActuatorSubscriber::EventHandle(const std::shared_ptr<const aimrt::pro
       new_command_array[ii] = command.velocity();
     } else {
       // motor
-      new_command_array[ii] = command.effort();
+      int32_t actuator_addr = actuator_addr_vec_[ii];
+      double state_posiotin = d_->qpos[actuator_addr];
+      double state_velocity = d_->qvel[actuator_addr];
+      new_command_array[ii] = command.effort() +
+                              command.stiffness() * (command.position() - state_posiotin) +
+                              command.damping() * (command.velocity() - state_velocity);
     }
   }
 
@@ -109,10 +114,10 @@ void JointActuatorSubscriber::EventHandle(const std::shared_ptr<const aimrt::pro
   delete[] old_command_array;
 }
 
-void JointActuatorSubscriber::RegisterActuatorAddr() {
+void JointPdActuatorSubscriber::RegisterActuatorAddr() {
   uint32_t idx = 0;
   for (auto const& joint : options_.joints) {
-    uint32_t actuator_id = mj_name2id(m_, mjOBJ_ACTUATOR, joint.bind_actuator_name.c_str());
+    uint32_t actuator_id = m_->sensor_adr[mj_name2id(m_, mjOBJ_ACTUATOR, joint.bind_actuator_name.c_str())];
     AIMRT_CHECK_ERROR_THROW(actuator_id >= 0, "Invalid bind_actuator_name '{}'.", joint.bind_actuator_name);
 
     actuator_addr_vec_.emplace_back(actuator_id);

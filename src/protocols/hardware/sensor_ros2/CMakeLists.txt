@@ -29,6 +29,8 @@ set(BUILD_SHARED_LIBS ON)
 rosidl_generate_interfaces(${CUR_PACKAGE_NAME}
   "msg/touch/SingleTouchState.msg"
   "msg/touch/TouchState.msg"
+  "msg/joint_pd/State.msg"
+  "msg/joint_pd/JointPdState.msg"
   DEPENDENCIES std_msgs
 )
 # cmake-format: on
