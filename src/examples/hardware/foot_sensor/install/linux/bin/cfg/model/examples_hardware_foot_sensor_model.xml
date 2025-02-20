@@ -1,4 +1,4 @@
-<mujoco model="touch_sensor_test">
+<mujoco model="foot_sensor_test">
   <compiler eulerseq="XYZ" fitaabb="true" angle="radian"  autolimits="true"/>  
   <option timestep="0.001" gravity="0 0 -9.81"/> 
 
@@ -15,21 +15,21 @@
     <body name="object" pos="0 0 0">
       <joint type="free"/>
       <geom name="base_ball" type="sphere"  size="0.4"  rgba="0. 0.5 0.7 0.7" mass="10"/>
-      <site name="touch_sensor_site_1_top" type="sphere" size="0.01" pos="0 0 -0.39" rgba="1 0 0 0.5"/> 
-      <site name="touch_sensor_site_1_bottom" type="sphere" size="0.01" pos="0 0 0.39" rgba="1 0 0 0.5"/> 
+      <site name="foot_sensor_site_1_top" type="sphere" size="0.01" pos="0 0 -0.39" rgba="1 0 0 0.5"/> 
+      <site name="foot_sensor_site_1_bottom" type="sphere" size="0.01" pos="0 0 0.39" rgba="1 0 0 0.5"/> 
     </body>
 
     <body name="probe" pos="0 0 2">
       <joint type="free"/>
       <geom name="fall_ball" type="sphere"  size="0.2"  rgba="0. 0.5 0.7 0.7" mass="10"/>
-      <site name="touch_sensor_site_2_bottom" type="sphere" size="0.01" pos="0 0 -0.19" rgba="0 1 0 0.5"/> 
+      <site name="foot_sensor_site_2_bottom" type="sphere" size="0.01" pos="0 0 -0.19" rgba="0 1 0 0.5"/> 
     </body>
   </worldbody>
     
   <sensor>
-      <touch name="touch_sensor_1_top" site="touch_sensor_site_1_top"/>
-      <touch name="touch_sensor_1_bottom" site="touch_sensor_site_1_bottom"/>
-      <touch name="touch_sensor_2_bottom" site="touch_sensor_site_2_bottom"/>
+      <touch name="foot_sensor_1_top" site="foot_sensor_site_1_top"/>
+      <touch name="foot_sensor_1_bottom" site="foot_sensor_site_1_bottom"/>
+      <touch name="foot_sensor_2_bottom" site="foot_sensor_site_2_bottom"/>
   </sensor>
 
 </mujoco>

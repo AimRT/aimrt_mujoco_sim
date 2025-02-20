@@ -8,10 +8,10 @@ aimrt:
         path: ./libaimrt_echo_plugin.so
         options:
           type_support_pkgs:
-            - path: ./libtouch_type_support_pkg.so        
+            - path: ./libfoot_sensor_type_support_pkg.so        
           topic_meta_list:
-            - topic_name: /examples_hardware/touch/touch_state
-              msg_type: pb:aimrt.protocols.sensor.TouchState    
+            - topic_name: /examples_hardware/foot_sensor/foot_sensor_state
+              msg_type: pb:aimrt.protocols.sensor.FootSensorState    
               echo_type: json
   log:
     core_lvl: INFO # Trace/Debug/Info/Warn/Error/Fatal/Off
@@ -44,24 +44,24 @@ aimrt:
 
 # Module custom configuration
 MujocoSimModule:
-  simulation_model_path: ./cfg/model/examples_hardware_touch_model.xml
+  simulation_model_path: ./cfg/model/examples_hardware_foot_sensor_model.xml
   sim_executor: work_thread_pool
   gui_executor: gui_thread
   publisher_options:
-    - topic: /examples_hardware/touch/touch_state
+    - topic: /examples_hardware/foot_sensor/foot_sensor_state
       frequency: 1
       executor: work_thread_pool
-      type: touch_sensor
+      type: foot_sensor
       options:
         names: 
           - top_ball
           - bottom_ball
         states:
-          - - bind_site: touch_sensor_site_1_top
-              bind_touch_sensor: touch_sensor_1_top
-          - - bind_site: touch_sensor_site_1_bottom
-              bind_touch_sensor: touch_sensor_1_bottom
-            - bind_site: touch_sensor_site_2_bottom
-              bind_touch_sensor: touch_sensor_2_bottom
+          - - bind_site: foot_sensor_site_1_top
+              bind_foot_sensor: foot_sensor_1_top
+          - - bind_site: foot_sensor_site_1_bottom
+              bind_foot_sensor: foot_sensor_1_bottom
+            - bind_site: foot_sensor_site_2_bottom
+              bind_foot_sensor: foot_sensor_2_bottom
 
 

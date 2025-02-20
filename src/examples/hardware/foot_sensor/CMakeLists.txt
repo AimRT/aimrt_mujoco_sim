@@ -8,7 +8,7 @@ string(REGEX REPLACE ".*/\(.*\)" "\\1" CUR_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set_namespace()
 
 # type_support_pkg
-add_subdirectory(touch_type_support_pkg)
+add_subdirectory(foot_sensor_type_support_pkg)
 
 # install
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")

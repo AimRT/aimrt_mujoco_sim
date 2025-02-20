@@ -64,19 +64,19 @@ void PidControlModule::Shutdown() {}
 
 void PidControlModule::EventHandle(const std::shared_ptr<const aimrt::protocols::sensor::JointState>& data) {
   // adjust to [-π, π] range
-  double normalized = fmod(data->data()[1].position(), 2 * M_PI);
+  double normalized = fmod(data->states()[1].position(), 2 * M_PI);
   if (normalized > M_PI) {
     normalized -= 2 * M_PI;
   } else if (normalized < -M_PI) {
     normalized += 2 * M_PI;
   }
 
-  double target = data->data()[0].velocity() * 0.015;
+  double target = data->states()[0].velocity() * 0.015;
 
   double control_output = controller_.Compute(target, normalized);
 
   aimrt::protocols::sensor::JointState msg;
-  auto* joint_cmd = msg.add_data();
+  auto* joint_cmd = msg.add_states();
   joint_cmd->set_name("center_joint");
   joint_cmd->set_effort(control_output);
 

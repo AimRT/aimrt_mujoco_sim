@@ -29,6 +29,11 @@
   </actuator>
   <sensor> 
     <jointpos name="jointpos_shoulder" joint="shoulder" noise="0.01"/>  
+    <jointvel name="jointvel_shoulder" joint="shoulder" noise="0.01"/>  
+    <jointactuatorfrc name="jointactuatorfrc_shoulder" joint="shoulder" noise="0.01"/> 
+
     <jointpos name="jointpos_elbow" joint="elbow" noise="0.05"/>  
+    <jointactuatorfrc name="jointactuatorfrc_elbow" joint="elbow" noise="0.05"/>  
+    <jointvel name="jointvel_elbow" joint="elbow" noise="0.05"/>  
   </sensor> 
 </mujoco>

@@ -11,6 +11,13 @@ ELBOW_POS=${2:-$DEFAULT_ELBOW_POS}
 # build json data
 JSON_DATA=$(cat <<EOF
 {
+  "header": {
+    "stamp": {
+      "sec": 1234567890,
+      "nanosec": 123456789
+    },
+    "frame_id": "base_link"
+  },
   "commands": [
     {
       "name": "shoulder_actuator",
@@ -32,5 +39,5 @@ EOF
 # send json data to server
 curl -i \
   -H 'content-type:application/json' \
-  -X POST 'http://127.0.0.1:50080/channel/%2Fexamples_hardware%2Fjoint%2Fjoint_command/pb%3Aaimrt.protocols.sensor.JointCommand' \
+  -X POST 'http://127.0.0.1:50080/channel/%2Fexamples_hardware%2Fjoint%2Fjoint_command/ros2%3Asensor_ros2%2Fmsg%2FJointCommand' \
   -d "$JSON_DATA"

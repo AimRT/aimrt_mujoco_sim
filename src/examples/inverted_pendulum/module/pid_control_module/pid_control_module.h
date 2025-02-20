@@ -8,7 +8,7 @@
 #include "pid_control_module/pid_control_algorithm.h"
 #include "pid_control_module/pid_control_service.h"
 
-#include "joint.pb.h"
+#include "joint_state.pb.h"
 #include "pid_control.aimrt_rpc.pb.h"
 
 namespace aimrt_mujoco_sim::example::inverted_pendulum::pid_control_module {

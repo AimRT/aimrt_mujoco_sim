@@ -5,35 +5,33 @@
 
 #include "aimrt_module_protobuf_interface/channel/protobuf_channel.h"
 #include "aimrt_module_protobuf_interface/util/protobuf_tools.h"
-#include "joint_state.pb.h"
+#include "foot_sensor_state.pb.h"
 #include "mujoco_sim_module/global.h"
 #include "mujoco_sim_module/publisher/publisher_base.h"
 #include "mujoco_sim_module/publisher/utils.h"
 
 namespace aimrt_mujoco_sim::mujoco_sim_module::publisher {
-
-class JointSensorPublisher : public PublisherBase {
+class FootSensorPublisher : public PublisherBase {
  public:
   struct Options {
-    struct Joint {
-      std::string name;
-      std::string bind_joint;
-      std::string bind_jointpos_sensor;
-      std::string bind_jointvel_sensor;
-      std::string bind_jointactuatorfrc_sensor;
+    std::vector<std::string> names;
+
+    struct State {
+      std::string bind_site;
+      std::string bind_foot_sensor;
     };
-    std::vector<Joint> joints;
+    std::vector<std::vector<State>> states;
   };
 
  public:
-  JointSensorPublisher() = default;
-  ~JointSensorPublisher() override = default;
+  FootSensorPublisher() = default;
+  ~FootSensorPublisher() override = default;
 
   void Initialize(YAML::Node options_node) override;
   void Start() override {}
   void Shutdown() override {}
 
-  [[nodiscard]] std::string_view Type() const noexcept override { return "joint_sensor"; }
+  [[nodiscard]] std::string_view Type() const noexcept override { return "foot_sensor"; }
 
   void SetPublisherHandle(aimrt::channel::PublisherRef publisher_handle) override {
     publisher_ = publisher_handle;
@@ -59,15 +57,11 @@ class JointSensorPublisher : public PublisherBase {
 
  private:
   struct SensorAddrGroup {
-    int32_t jointpos_addr = -1;
-    int32_t jointvel_addr = -1;
-    int32_t jointactuatorfrc_addr = -1;
+    std::vector<int32_t> addr_vec;
   };
 
   struct SensorStateGroup {
-    double jointpos_state = 0.0;
-    double jointvel_state = 0.0;
-    double jointactuatorfrc_state = 0.0;
+    std::vector<double> state_vec;
   };
 
  private:
@@ -83,11 +77,11 @@ class JointSensorPublisher : public PublisherBase {
   double avg_interval_base_ = 1.0;
   double avg_interval_ = 0;
 
-  uint32_t joint_num_ = 0;
+  uint32_t foot_sensor_group_num_ = 0;
   uint32_t counter_ = 0;
 
-  std::vector<SensorAddrGroup> sensor_addr_vec_;
+  std::vector<SensorAddrGroup> sensor_addr_group_vec_;
   std::vector<std::string> name_vec_;
+  std::vector<uint32_t> foot_sensor_num_vec_;
 };
-
 }  // namespace aimrt_mujoco_sim::mujoco_sim_module::publisher

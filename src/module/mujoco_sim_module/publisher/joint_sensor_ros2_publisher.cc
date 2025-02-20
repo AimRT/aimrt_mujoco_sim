@@ -1,12 +1,12 @@
 // Copyright (c) 2023, AgiBot Inc.
 // All rights reserved.
 
-#include "mujoco_sim_module/publisher/joint_sensor_publisher.h"
+#include "mujoco_sim_module/publisher/joint_sensor_ros2_publisher.h"
 
 namespace YAML {
 template <>
-struct convert<aimrt_mujoco_sim::mujoco_sim_module::publisher ::JointSensorPublisher::Options> {
-  using Options = aimrt_mujoco_sim::mujoco_sim_module::publisher ::JointSensorPublisher::Options;
+struct convert<aimrt_mujoco_sim::mujoco_sim_module::publisher ::JointSensorRos2Publisher::Options> {
+  using Options = aimrt_mujoco_sim::mujoco_sim_module::publisher ::JointSensorRos2Publisher::Options;
 
   static Node encode(const Options& rhs) {
     Node node;
@@ -52,7 +52,7 @@ struct convert<aimrt_mujoco_sim::mujoco_sim_module::publisher ::JointSensorPubli
 
 namespace aimrt_mujoco_sim::mujoco_sim_module::publisher {
 
-void JointSensorPublisher::Initialize(YAML::Node options_node) {
+void JointSensorRos2Publisher::Initialize(YAML::Node options_node) {
   if (options_node && !options_node.IsNull())
     options_ = options_node.as<Options>();
 
@@ -62,12 +62,12 @@ void JointSensorPublisher::Initialize(YAML::Node options_node) {
 
   options_node = options_;
 
-  bool ret = aimrt::channel::RegisterPublishType<aimrt::protocols::sensor::JointState>(publisher_);
+  bool ret = aimrt::channel::RegisterPublishType<sensor_ros2::msg::JointState>(publisher_);
 
   AIMRT_CHECK_ERROR_THROW(ret, "Register publish type failed.");
 }
 
-void JointSensorPublisher::PublishSensorData() {
+void JointSensorRos2Publisher::PublishSensorData() {
   static constexpr uint32_t ONE_MB = 1024 * 1024;
 
   if (counter_++ < avg_interval_) return;
@@ -83,14 +83,21 @@ void JointSensorPublisher::PublishSensorData() {
   }
 
   executor_.Execute([this, state_array = std::move(state_array)]() {
-    aimrt::protocols::sensor::JointState joint_state;
-    for (int i = 0; i < joint_num_; ++i) {
-      auto* data = joint_state.add_states();
-      data->set_name(name_vec_[i]);
+    sensor_ros2::msg::JointState joint_state;
 
-      data->set_position(state_array[i].jointpos_state);
-      data->set_velocity(state_array[i].jointvel_state);
-      data->set_effort(state_array[i].jointactuatorfrc_state);
+    auto timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    joint_state.header.stamp.sec = timestamp / 1e9;
+    joint_state.header.stamp.nanosec = timestamp % static_cast<uint64_t>(1e9);
+    joint_state.header.frame_id = "joint_sensor_ros2";
+
+    joint_state.states.resize(joint_num_);
+    for (int i = 0; i < joint_num_; ++i) {
+      sensor_ros2::msg::SingleJointState state;
+      state.name = name_vec_[i];
+      state.position = state_array[i].jointpos_state;
+      state.velocity = state_array[i].jointvel_state;
+      state.effort = state_array[i].jointactuatorfrc_state;
+      joint_state.states[i] = state;
     }
 
     aimrt::channel::Publish(publisher_, joint_state);
@@ -105,7 +112,7 @@ void JointSensorPublisher::PublishSensorData() {
   }
 }
 
-void JointSensorPublisher::RegisterSensorAddr() {
+void JointSensorRos2Publisher::RegisterSensorAddr() {
   for (const auto& joint : options_.joints) {
     sensor_addr_vec_.emplace_back(SensorAddrGroup{
         .jointpos_addr = GetSensorAddr(m_, joint.bind_jointpos_sensor),
