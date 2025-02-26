@@ -8,6 +8,7 @@
 #include "pid_control_module/pid_control_algorithm.h"
 #include "pid_control_module/pid_control_service.h"
 
+#include "joint_command.pb.h"
 #include "joint_state.pb.h"
 #include "pid_control.aimrt_rpc.pb.h"
 
@@ -34,7 +35,7 @@ class PidControlModule : public aimrt::ModuleBase {
  private:
   aimrt::CoreRef core_;
 
-  std::unique_ptr<aimrt::channel::PublisherProxy<aimrt::protocols::sensor::JointState>> publisher_proxy_;
+  std::unique_ptr<aimrt::channel::PublisherProxy<aimrt::protocols::sensor::JointCommand>> publisher_proxy_;
   std::unique_ptr<PidControlServiceImpl> service_ptr_;
 
   PIDController controller_;

@@ -33,9 +33,9 @@ bool PidControlModule::Initialize(aimrt::CoreRef core) {
     // Register joint command publisher
     auto publisher = core_.GetChannelHandle().GetPublisher(topic_name_pub);
     AIMRT_CHECK_ERROR_THROW(publisher, "Get publisher for topic '{}' failed.", topic_name_pub);
-    ret = aimrt::channel::RegisterPublishType<aimrt::protocols::sensor::JointState>(publisher);
+    ret = aimrt::channel::RegisterPublishType<aimrt::protocols::sensor::JointCommand>(publisher);
     AIMRT_CHECK_ERROR_THROW(ret, "Register publishType failed.");
-    publisher_proxy_ = std::make_unique<aimrt::channel::PublisherProxy<aimrt::protocols::sensor::JointState>>(publisher);
+    publisher_proxy_ = std::make_unique<aimrt::channel::PublisherProxy<aimrt::protocols::sensor::JointCommand>>(publisher);
 
     // Register service
     service_ptr_ = std::make_unique<PidControlServiceImpl>(controller_);
@@ -75,7 +75,7 @@ void PidControlModule::EventHandle(const std::shared_ptr<const aimrt::protocols:
 
   double control_output = controller_.Compute(target, normalized);
 
-  aimrt::protocols::sensor::JointState msg;
+  aimrt::protocols::sensor::JointCommand msg;
   auto* joint_cmd = msg.add_joints();
   joint_cmd->set_name("center_joint");
   joint_cmd->set_effort(control_output);

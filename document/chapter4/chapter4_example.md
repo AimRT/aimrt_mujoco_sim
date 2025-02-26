@@ -1,9 +1,56 @@
 # 第4章 示例
 
 
-## 4.1 倒立摆(inverted pendulum)
+## 4.1 传感器使用示例(example/hardware)
+### 4.1.1 joint 传感器与驱动器
+![alt text](./pic/joint.png)
+该示例演示了如何使用 joint 传感器驱动器用来驱动双关节机械臂，并在终端定频输出关节位置状态。用户可通过在 build 目录下输入以下指令执行：
+```shell
+# 使用 protobuf 协议
+./start_examples_hardware_joint_pb.sh
+```
+```shell
+# 使用 ros2_msg 协议
+./start_examples_hardware_joint_ros2.sh
+```
+用户可进入 build/tools 目录下执行以下指令发送关节控制指令
+```shell
+# 若使用 protobuf 协议
+./pb_joint_command_tool.sh <肩关节位置> <肘关节位置>
+```
+```shell
+# 若使用 ros2_msg 协议
+./ros2_joint_command_tool.sh <肩关节位置> <肘关节位置>
+```
 
-### 4.1.1 模型介绍
+
+
+### 4.1.2 imu 传感器
+![alt text](./pic/imu.png)
+该示例演示了如何使用 imu 传感器获取机器人姿态信息，并在终端定频输出姿态信息。用户可通过在 build 目录下输入以下指令执行：
+
+```shell
+# 使用 protobuf 协议
+./start_examples_hardware_imu_pb.sh
+```
+```shell
+# 使用 ros2_msg 协议
+./start_examples_hardware_imu_ros2.sh
+```
+### 4.1.3 touch 传感器
+![alt text](./pic/touch.png)
+该示例演示了如何使用 touch 传感器获取机器人触摸信息，并在终端定频输出接触力信息。用户可通过在 build 目录下输入以下指令执行：
+```shell
+# 使用 protobuf 协议
+./start_examples_hardware_touch_pb.sh
+```
+```shell
+# 使用 ros2_msg 协议
+./start_examples_hardware_touch_ros2.sh
+```
+## 4.2 倒立摆(example/inverted pendulum)
+
+### 4.2.1 模型介绍
 
 倒立摆由基座、支架、水平旋转杆以及竖直摆杆组成。整个装置只有一个电机用于驱动水平旋转杆的转动。此外，在水平旋转杆和竖直摆杆上个安装有速度和角度的传感器，用于测量其转动期间的速度和角度等状态信息。
 
@@ -13,7 +60,7 @@
 
 
 
-### 4.1.2 控制算法
+### 4.2.2 控制算法
 该示例通过简单的单环 PID 控制器来控制水平旋转杆的转动。用户可通过从项目根目录下进入`./build`目录，执行
 ```shell
 python3 ./tools/inverted_pendulum_pid_gui.py

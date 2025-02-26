@@ -49,6 +49,11 @@ class JointActuatorSubscriber : public SubscriberBase {
   void RegisterActuatorAddr();
 
  private:
+  struct ActuatorBindJointSensorAddr {
+    int32_t pos_addr;
+    int32_t vel_addr;
+  };
+
   Options options_;
   bool stop_flag_ = true;
 
@@ -60,6 +65,8 @@ class JointActuatorSubscriber : public SubscriberBase {
   std::vector<size_t> actuator_addr_vec_;
   std::atomic<double*> command_array_{nullptr};
   std::vector<std::string> joint_names_vec_;
+
+  std::vector<ActuatorBindJointSensorAddr> actuator_bind_joint_sensor_addr_vec_;
 };
 
 }  // namespace aimrt_mujoco_sim::mujoco_sim_module::subscriber

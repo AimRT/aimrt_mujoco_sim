@@ -41,15 +41,20 @@ AimRT_Mujoco_Sim 的设计初衷就是让用户仅通过配置文件来描述整
 - subscriber_options 为数组类型， 每一个元素代表会开启一个订阅者用于订阅控制指令。
 - publisher_options 为数组类型， 每一个元素代表会开启一个发布者用于发布状态信息。
 - subscriber_options[i].type 为订阅的控制指令的类型，目前可选的有：
-  - [`joint_actuator`](#joint-类驱动器选项joint_actuator)
+  - [`joint_actuator`](#joint-类驱动器选项joint_actuator--joint_actuator_ros2)
+  - [`joint_actuator_ros2`](#joint-类驱动器选项joint_actuator--joint_actuator_ros2)
 
 - publisher_options[i].frequency 为发布状态信息的频率，单位为 Hz，最大值为1000。用户在设置时建议设置为 1000 的因数。
 - publisher_options[i].type 为发布的状态信息类型，目前可选的有：
-  - [`joint_sensor`](#joint-类传感器选项joint_sensor)
-  - [`imu_sensor`](#imu-类传感器选项imu_sensor)
+  - [`joint_sensor`](#joint-类传感器选项joint_sensor--joint_sensor_ros2)
+  - [`joint_sensor_ros2`](#joint-类传感器选项joint_sensor--joint_sensor_ros2)
+  - [`imu_sensor`](#imu-类传感器选项imu_sensor--imu_sensor_ros2)
+  - [`imu_sensor_ros2`](#imu-类传感器选项imu_sensor--imu_sensor_ros2)
+  - [`touch_sensor`](#touch-类传感器选项touch_sensor--touch_sensor_ros2)
+  - [`touch_sensor_ros2`](#touch-类传感器选项touch_sensor--touch_sensor_ros2)
 
 ### 3.2.2 驱动器配置
-#### joint 类驱动器选项（joint_actuator）
+#### joint 类驱动器选项（joint_actuator & joint_actuator_ros2）
 
 | 节点                         | 类型   | 是否可选 | 默认值 | 作用                                    |
 | ---------------------------- | ------ | -------- | ------ | --------------------------------------- |
@@ -66,30 +71,30 @@ AimRT_Mujoco_Sim 的设计初衷就是让用户仅通过配置文件来描述整
 - bind_actuator_name 必须与 xml 文件中定义的名称一致，即和下面代码块中  的 name 字段一致
 ```xml
   <!-- xml 示例： -->
-  <actuator> 
-    <motor name="motor_actuator" joint="test_joint" /> 
-    <position name="position_actuator" joint="test_joint" /> 
+  <actuator>
+    <position name="shoulder_actuator" joint="shoulder" ctrlrange="-1.5708 1.5708" kp="1000" kv="50"/>
+    <position name="elbow_actuator" joint="elbow" ctrlrange="-2.618 0" kp="1000" kv="50"/>
   </actuator>
 ```
 ```yaml
   # yaml 示例：
   subscriber_options:
-    - topic: /test/joint_command
+    - topic: /examples_hardware/joint/joint_command
       type: joint_actuator
       options:
         joints:
-          - name: motor_actuator
-            bind_joint: test_joint
-            bind_actuator_type: motor
-            bind_actuator_name: motor_actuator
-          - name: position_actuator
-            bind_joint: test_joint
+          - name: shoulder_actuator
+            bind_joint: shoulder
             bind_actuator_type: position
-            bind_actuator_name: position_actuator
+            bind_actuator_name: shoulder_actuator
+          - name: elbow_actuator
+            bind_joint: elbow
+            bind_actuator_type: position
+            bind_actuator_name: elbow_actuator
 ```
 
 ### 3.2.3 传感器配置
-#### joint 类传感器选项（joint_sensor）
+#### joint 类传感器选项（joint_sensor & joint_sensor_ros2）
 
 | 节点                                   | 类型   | 是否可选 | 默认值 | 作用                                  |
 | -------------------------------------- | ------ | -------- | ------ | ------------------------------------- |
@@ -109,30 +114,37 @@ AimRT_Mujoco_Sim 的设计初衷就是让用户仅通过配置文件来描述整
 ```xml
   <!-- xml 示例： -->
   <sensor> 
-    <jointpos name="test_jointpos" joint="test_joint" />  
-    <jointvel name="test_jointvel" joint="test_joint" /> 
-    <jointactuatorfrc name="test_jointactuatorfrc" joint="test_joint" />
+    <jointpos name="jointpos_shoulder" joint="shoulder" noise="0.01"/>  
+    <jointvel name="jointvel_shoulder" joint="shoulder" noise="0.01"/>  
+    <jointactuatorfrc name="jointactuatorfrc_shoulder" joint="shoulder" noise="0.01"/> 
+
+    <jointpos name="jointpos_elbow" joint="elbow" noise="0.05"/>  
+    <jointactuatorfrc name="jointactuatorfrc_elbow" joint="elbow" noise="0.05"/>  
+    <jointvel name="jointvel_elbow" joint="elbow" noise="0.05"/>  
   </sensor> 
 ```
 ```yaml
   # yaml 示例：
   publisher_options:
-    - topic: /test/joint_state
-      frequency: 1000
+    - topic: /examples_hardware/joint/joint_state
+      frequency: 1
       executor: work_thread_pool
       type: joint_sensor
       options:
         joints:
-          - name: test_joint_1
-            bind_joint: test_joint_1
-            bind_jointpos_sensor: test_jointpos_1
-          - name: test_joint_2
-            bind_joint: test_joint_2
-            bind_jointvel_sensor: test_jointvel_2
-            bind_jointactuatorfrc_sensor: test_jointactuatorfrc_2
+          - name: shoulder_sensor
+            bind_joint: shoulder
+            bind_jointpos_sensor: jointpos_shoulder
+            bind_jointvel_sensor: jointvel_shoulder
+            bind_jointactuatorfrc_sensor: jointactuatorfrc_shoulder
+          - name: elbow_sensor
+            bind_joint: elbow
+            bind_jointpos_sensor: jointpos_elbow
+            bind_jointvel_sensor: jointvel_elbow
+            bind_jointactuatorfrc_sensor: jointactuatorfrc_elbow
 ```
 
-#### imu 类传感器选项（imu_sensor）
+#### imu 类传感器选项（imu_sensor & imu_sensor_ros2）
 
 | 节点               | 类型   | 是否可选 | 默认值 | 作用                                    |
 | ------------------ | ------ | -------- | ------ | --------------------------------------- |
@@ -150,47 +162,62 @@ AimRT_Mujoco_Sim 的设计初衷就是让用户仅通过配置文件来描述整
 ```xml
   <!-- xml 示例： -->
   <sensor>
-    <framequat name="test-orientation" objtype="site" objname="imu" noise="0"/>
-    <gyro name="test-angular-velocity" site="imu" noise="0.001"/>
-    <accelerometer name="test-linear-acceleration" site="imu" noise="0.001"/>
+      <gyro name="angular-velocity" site="imu" noise="0"/>
+      <accelerometer name="linear-acceleration" site="imu" noise="0"/>
+      <framequat name="orientation" objtype="site" objname="imu" noise="0"/>
   </sensor>
 ```
 ```yaml
   # yaml 示例：
   publisher_options:
-    - topic: /test/imu_state
-      frequency: 1000
+    - topic: /examples_hardware/imu/imu_state
+      frequency: 1
       executor: work_thread_pool
       type: imu_sensor
       options:
-          bind_site: imu
-          bind_framequat: test-orientation
-          bind_gyro: test-angular-velocity
-          bind_accelerometer: test-linear-acceleration
+        bind_site: imu
+        bind_framequat: orientation
+        bind_gyro: angular-velocity
+        bind_accelerometer: linear-acceleration
 ```
 
-#### touch 类传感器选项（touch_sensor）
+#### touch 类传感器选项（touch_sensor & touch_sensor_ros2）
 
-| 节点   | 类型  | 是否可选 | 默认值 | 作用                                    |
-| ------ | ----- | -------- | ------ | --------------------------------------- |
-| name   | array | 必选     | []     | IMU 传感器在 xml 中绑定的 site 名称     |
-| states | array | 可选     | []     | 绑定在 xml 中测量姿态四元数的传感器名称 |
+| 节点                    | 类型    | 是否可选 | 默认值 | 作用                                                                   |
+| ----------------------- | ------- | -------- | ------ | ---------------------------------------------------------------------- |
+| name                    | array   | 必选     | []     | 某一传感器组的名称，每个name与states中的元素一一对应组                 |
+| states                  | array2D | 可选     | []     | 外层数组的每个元素代表一个传感器组，内层数组的元素是该组中的传感器配置 |
+| states[i][j]            | map     | 可选     | {}     | 代表组中第j个传感器的具体配置                                          |
+| states[i][j].bind_site  | string  | 可选     | ""     | touch传感器在xml 中绑定的site名称                                      |
+| states[i][j].bind_touch | string  | 可选     | ""     | 绑定在 xml 中测量 touch 传感器名称                                     |
 
 使用注意点如下：
 
 ```xml
   <!-- xml 示例： -->
   <sensor>
-
+      <touch name="touch_sensor_1_top" site="touch_sensor_site_1_top"/>
+      <touch name="touch_sensor_1_bottom" site="touch_sensor_site_1_bottom"/>
+      <touch name="touch_sensor_2_bottom" site="touch_sensor_site_2_bottom"/>
   </sensor>
 ```
 ```yaml
   # yaml 示例：
   publisher_options:
-    - topic: /test/imu_state
-      frequency: 1000
+    - topic: /examples_hardware/touch_sensor/touch_sensor_state
+      frequency: 1
       executor: work_thread_pool
       type: touch_sensor
       options:
+        names: 
+          - top_ball
+          - bottom_ball
+        states:
+          - - bind_site: touch_sensor_site_1_top
+              bind_touch_sensor: touch_sensor_1_top
+          - - bind_site: touch_sensor_site_1_bottom
+              bind_touch_sensor: touch_sensor_1_bottom
+            - bind_site: touch_sensor_site_2_bottom
+              bind_touch_sensor: touch_sensor_2_bottom
 
 ```

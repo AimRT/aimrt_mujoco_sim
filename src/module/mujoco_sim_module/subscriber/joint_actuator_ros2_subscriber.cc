@@ -100,9 +100,8 @@ void JointActuatorRos2Subscriber::EventHandle(const std::shared_ptr<const sensor
       new_command_array[ii] = command.velocity;
     } else {
       // motor
-      int joint_id = m_->actuator_trnid[actuator_addr_vec_[ii] * 2];
-      double state_posiotin = d_->qpos[m_->jnt_qposadr[joint_id]];
-      double state_velocity = d_->qvel[m_->jnt_dofadr[joint_id]];
+      double state_posiotin = d_->qpos[actuator_bind_joint_sensor_addr_vec_[ii].pos_addr];
+      double state_velocity = d_->qvel[actuator_bind_joint_sensor_addr_vec_[ii].vel_addr];
 
       new_command_array[ii] = command.effort +
                               command.stiffness * (command.position - state_posiotin) +
@@ -122,6 +121,12 @@ void JointActuatorRos2Subscriber::RegisterActuatorAddr() {
 
     actuator_addr_vec_.emplace_back(actuator_id);
     joint_names_vec_.emplace_back(joint.name);
+
+    auto joint_id = m_->actuator_trnid[actuator_id * 2];
+    actuator_bind_joint_sensor_addr_vec_.emplace_back(ActuatorBindJointSensorAddr{
+        .pos_addr = m_->jnt_qposadr[joint_id],
+        .vel_addr = m_->jnt_dofadr[joint_id],
+    });
   }
 
   joint_num_ = actuator_addr_vec_.size();

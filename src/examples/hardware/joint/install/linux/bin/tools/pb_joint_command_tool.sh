@@ -16,13 +16,17 @@ JSON_DATA=$(cat <<EOF
       "name": "shoulder_actuator",
       "position": $SHOULDER_POS,
       "velocity": 0.0,
-      "effort": 0.0
+      "effort": 0.0,
+      "stiffness": 0.0,
+      "damping": 0.0
     },
     {
       "name": "elbow_actuator",
       "position": $ELBOW_POS,
       "velocity": 0.1,
-      "effort": 0.0
+      "effort": 0.0,
+      "stiffness": 0.0,
+      "damping": 0.0
     }
   ]
 }

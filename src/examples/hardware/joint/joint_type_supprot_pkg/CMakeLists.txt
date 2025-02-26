@@ -26,7 +26,7 @@ target_sources(${CUR_TARGET_NAME} PRIVATE ${src})
 set(BASE_DEPENDENCIES
     aimrt::interface::aimrt_type_support_pkg_c_interface #
     aimrt::interface::aimrt_module_protobuf_interface #
-    aimrt_mujoco_sim::protocols::sensor_pb_gencode)
+    aimrt::protocols::sensor_pb_gencode)
 
 if(AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2)
   find_package(rclcpp REQUIRED)
@@ -47,4 +47,3 @@ endif()
 
 # Set misc of target
 set_target_properties(${CUR_TARGET_NAME} PROPERTIES OUTPUT_NAME ${CUR_DIR})
-
