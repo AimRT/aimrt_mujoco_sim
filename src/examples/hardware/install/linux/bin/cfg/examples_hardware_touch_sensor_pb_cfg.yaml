@@ -8,7 +8,7 @@ aimrt:
         path: ./libaimrt_echo_plugin.so
         options:
           type_support_pkgs:
-            - path: ./libtouch_sensor_type_support_pkg.so        
+            - path: ./libhardware_type_supprot_pkg.so        
           topic_meta_list:
             - topic_name: /examples_hardware/touch_sensor/touch_sensor_state
               msg_type: pb:aimrt.protocols.sensor.TouchSensorState    

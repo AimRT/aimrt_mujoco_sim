@@ -4,7 +4,7 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
+#include <cstdlib>
 #include "mujoco/mujoco.h"
 #include "mujoco_sim_module/global.h"
 
@@ -20,26 +20,28 @@ inline double GetAvgIntervalBase(const uint32_t channel_frq) {
 
   double avg_interval_base = static_cast<double>(kMaxSimFreq) / static_cast<double>(channel_frq);
 
-  if (kMaxSimFreq % channel_frq != 0) {
-    const uint32_t lower_interval = kMaxSimFreq / channel_frq;
+  auto result = std::div(static_cast<int64_t>(kMaxSimFreq), static_cast<int64_t>(channel_frq));
+
+  if (result.rem != 0) {
+    const uint32_t lower_interval = result.quot;
     const uint32_t upper_interval = lower_interval + 1;
 
     const double lower_error = std::abs(lower_interval - avg_interval_base) / avg_interval_base;
     const double upper_error = std::abs(upper_interval - avg_interval_base) / avg_interval_base;
 
     AIMRT_CHECK_ERROR_THROW((lower_error <= kErrorRate && upper_error <= kErrorRate),
-                            "Invalid channel frequency {}, which cauess the frequency error is more than {} ",
+                            "Invalid channel frequency {}, which causes the frequency error is more than {} ",
                             channel_frq, kErrorRate);
   }
   return avg_interval_base;
 }
 
-[[nodiscard]] inline int32_t GetSensorAddr(const mjModel* m, const std::string& sensor_name) {
+[[nodiscard]] inline int32_t GetSensorAddr(const mjModel* m, std::string_view sensor_name) {
   if (sensor_name.empty()) {
     return -1;
   }
 
-  int32_t sensor_id = mj_name2id(m, mjOBJ_SENSOR, sensor_name.c_str());
+  int32_t sensor_id = mj_name2id(m, mjOBJ_SENSOR, sensor_name.data());
   AIMRT_CHECK_ERROR_THROW(sensor_id >= 0, "Invalid sensor name: {}.", sensor_name);
 
   return m->sensor_adr[sensor_id];
