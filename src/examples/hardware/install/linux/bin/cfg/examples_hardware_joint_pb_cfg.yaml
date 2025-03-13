@@ -15,10 +15,10 @@ aimrt:
         path: ./libaimrt_echo_plugin.so
         options:
           type_support_pkgs:
-            - path: ./libjoint_type_supprot_pkg.so        
+            - path: ./libhardware_type_supprot_pkg.so        
           topic_meta_list:
             - topic_name: /examples_hardware/joint/joint_state
-              msg_type: ros2:sensor_ros2/msg/JointState    
+              msg_type: pb:aimrt.protocols.sensor.JointState    
               echo_type: json
   log:
     core_lvl: INFO # Trace/Debug/Info/Warn/Error/Fatal/Off
@@ -36,10 +36,6 @@ aimrt:
     backends:
       - type: local
       - type: http
-        options:
-          pub_topics_options:
-            - topic_name: "(.*)"
-              server_url_list: ["127.0.0.1:50081"]
     sub_topics_options:
       - topic_name: "(.*)"
         enable_backends: [http, local]
@@ -61,7 +57,7 @@ MujocoSimModule:
   gui_executor: gui_thread
   subscriber_options:
     - topic: /examples_hardware/joint/joint_command
-      type: joint_actuator_ros2
+      type: joint_actuator
       options:
         joints:
           - name: shoulder_actuator
@@ -77,7 +73,7 @@ MujocoSimModule:
     - topic: /examples_hardware/joint/joint_state
       frequency: 1
       executor: work_thread_pool
-      type: joint_sensor_ros2
+      type: joint_sensor
       options:
         joints:
           - name: shoulder_sensor
@@ -90,3 +86,4 @@ MujocoSimModule:
             bind_jointpos_sensor: jointpos_elbow
             bind_jointvel_sensor: jointvel_elbow
             bind_jointactuatorfrc_sensor: jointactuatorfrc_elbow
+

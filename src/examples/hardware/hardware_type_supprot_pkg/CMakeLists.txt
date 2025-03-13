@@ -39,7 +39,11 @@ if(AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2)
     PRIVATE ${BASE_DEPENDENCIES} #
             aimrt::interface::aimrt_module_ros2_interface #
             sensor_msgs::sensor_msgs__rosidl_generator_cpp #
-            sensor_msgs::sensor_msgs__rosidl_typesupport_cpp)
+            sensor_msgs::sensor_msgs__rosidl_typesupport_cpp #
+            sensor_ros2::sensor_ros2__rosidl_generator_cpp #
+            sensor_ros2::sensor_ros2__rosidl_typesupport_cpp #
+            sensor_ros2::sensor_ros2__rosidl_typesupport_fastrtps_cpp #
+            sensor_ros2::sensor_ros2__rosidl_typesupport_introspection_cpp)
 else()
   target_link_libraries(${CUR_TARGET_NAME} PRIVATE ${BASE_DEPENDENCIES})
 endif()

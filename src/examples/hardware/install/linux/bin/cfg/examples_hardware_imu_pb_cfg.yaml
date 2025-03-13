@@ -8,10 +8,10 @@ aimrt:
         path: ./libaimrt_echo_plugin.so
         options:
           type_support_pkgs:
-            - path: ./libimu_type_supprot_pkg.so        
+            - path: ./libhardware_type_supprot_pkg.so        
           topic_meta_list:
-            - topic_name: /examples_hardware/imu/imu_state_ros2
-              msg_type: ros2:sensor_msgs/msg/Imu    
+            - topic_name: /examples_hardware/imu/imu_state
+              msg_type: pb:aimrt.protocols.sensor.ImuState    
               echo_type: json
   log:
     core_lvl: INFO # Trace/Debug/Info/Warn/Error/Fatal/Off
@@ -48,10 +48,10 @@ MujocoSimModule:
   sim_executor: work_thread_pool
   gui_executor: gui_thread
   publisher_options:
-    - topic: /examples_hardware/imu/imu_state_ros2
+    - topic: /examples_hardware/imu/imu_state
       frequency: 1
       executor: work_thread_pool
-      type: imu_sensor_ros2
+      type: imu_sensor
       options:
         bind_site: imu
         bind_framequat: orientation

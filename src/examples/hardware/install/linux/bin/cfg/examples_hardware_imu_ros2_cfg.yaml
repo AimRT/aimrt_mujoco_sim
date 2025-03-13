@@ -8,10 +8,10 @@ aimrt:
         path: ./libaimrt_echo_plugin.so
         options:
           type_support_pkgs:
-            - path: ./libtouch_sensor_type_support_pkg.so        
+            - path: ./libhardware_type_supprot_pkg.so        
           topic_meta_list:
-            - topic_name: /examples_hardware/touch_sensor/touch_sensor_state
-              msg_type: ros2:sensor_ros2/msg/TouchSensorState    
+            - topic_name: /examples_hardware/imu/imu_state_ros2
+              msg_type: ros2:sensor_msgs/msg/Imu    
               echo_type: json
   log:
     core_lvl: INFO # Trace/Debug/Info/Warn/Error/Fatal/Off
@@ -44,24 +44,17 @@ aimrt:
 
 # Module custom configuration
 MujocoSimModule:
-  simulation_model_path: ./cfg/model/examples_hardware_touch_sensor_model.xml
+  simulation_model_path: ./cfg/model/examples_hardware_imu_model.xml
   sim_executor: work_thread_pool
   gui_executor: gui_thread
   publisher_options:
-    - topic: /examples_hardware/touch_sensor/touch_sensor_state
+    - topic: /examples_hardware/imu/imu_state_ros2
       frequency: 1
       executor: work_thread_pool
-      type: touch_sensor_ros2
+      type: imu_sensor_ros2
       options:
-        names: 
-          - top_ball
-          - bottom_ball
-        states:
-          - - bind_site: touch_sensor_site_1_top
-              bind_touch_sensor: touch_sensor_1_top
-          - - bind_site: touch_sensor_site_1_bottom
-              bind_touch_sensor: touch_sensor_1_bottom
-            - bind_site: touch_sensor_site_2_bottom
-              bind_touch_sensor: touch_sensor_2_bottom
-
+        bind_site: imu
+        bind_framequat: orientation
+        bind_gyro: angular-velocity
+        bind_accelerometer: linear-acceleration
 
