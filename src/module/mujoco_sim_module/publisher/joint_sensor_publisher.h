@@ -10,9 +10,13 @@
 #include "mujoco_sim_module/publisher/publisher_base.h"
 #include "mujoco_sim_module/publisher/utils.h"
 
-namespace aimrt_mujoco_sim::mujoco_sim_module::publisher {
+#ifdef AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2
+  #include "aimrt_module_ros2_interface/channel/ros2_channel.h"
+  #include "sensor_ros2/msg/joint_state.hpp"
+#endif
 
-class JointSensorPublisher : public PublisherBase {
+namespace aimrt_mujoco_sim::mujoco_sim_module::publisher {
+class JointSensorPublisherBase : public PublisherBase {
  public:
   struct Options {
     struct Joint {
@@ -26,23 +30,21 @@ class JointSensorPublisher : public PublisherBase {
   };
 
  public:
-  JointSensorPublisher() = default;
-  ~JointSensorPublisher() override = default;
+  JointSensorPublisherBase() = default;
+  virtual ~JointSensorPublisherBase() override = default;
 
-  void Initialize(YAML::Node options_node) override;
+  virtual void Initialize(YAML::Node options_node) = 0;
+  virtual std::string_view Type() const noexcept override = 0;
+  virtual void PublishSensorData() override = 0;
+
   void Start() override {}
   void Shutdown() override {}
-
-  [[nodiscard]] std::string_view Type() const noexcept override { return "joint_sensor"; }
 
   void SetPublisherHandle(aimrt::channel::PublisherRef publisher_handle) override {
     publisher_ = publisher_handle;
   }
 
-  void SetMj(mjModel* m, mjData* d) override {
-    m_ = m;
-    d_ = d;
-  }
+  void SetMj(mjModel* m, mjData* d) override;
 
   void SetExecutor(aimrt::executor::ExecutorRef executor) override {
     executor_ = executor;
@@ -52,12 +54,11 @@ class JointSensorPublisher : public PublisherBase {
     channel_frq_ = freq;
   };
 
-  void PublishSensorData() override;
-
- private:
+ protected:
   void RegisterSensorAddr();
+  void InitializeBase(YAML::Node options_node);
 
- private:
+ protected:
   struct SensorAddrGroup {
     int32_t jointpos_addr = -1;
     int32_t jointvel_addr = -1;
@@ -70,7 +71,6 @@ class JointSensorPublisher : public PublisherBase {
     double jointactuatorfrc_state = 0.0;
   };
 
- private:
   Options options_;
 
   mjModel* m_ = nullptr;
@@ -90,4 +90,27 @@ class JointSensorPublisher : public PublisherBase {
   std::vector<std::string> name_vec_;
 };
 
+class JointSensorPublisher : public JointSensorPublisherBase {
+ public:
+  JointSensorPublisher() = default;
+  ~JointSensorPublisher() override = default;
+
+  void Initialize(YAML::Node options_node) override;
+  void PublishSensorData() override;
+
+  std::string_view Type() const noexcept override { return "joint_sensor"; }
+};
+
+#ifdef AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2
+class JointSensorRos2Publisher : public JointSensorPublisherBase {
+ public:
+  JointSensorRos2Publisher() = default;
+  ~JointSensorRos2Publisher() override = default;
+
+  void Initialize(YAML::Node options_node) override;
+  void PublishSensorData() override;
+
+  std::string_view Type() const noexcept override { return "joint_sensor_ros2"; }
+};
+#endif
 }  // namespace aimrt_mujoco_sim::mujoco_sim_module::publisher

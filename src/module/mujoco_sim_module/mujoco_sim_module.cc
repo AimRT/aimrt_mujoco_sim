@@ -13,14 +13,6 @@
 #include "mujoco_sim_module/publisher/touch_sensor_publisher.h"
 #include "mujoco_sim_module/subscriber/joint_actuator_subscriber.h"
 
-#ifdef AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2
-  #include "mujoco_sim_module/publisher/imu_sensor_ros2_publisher.h"
-  #include "mujoco_sim_module/publisher/joint_sensor_ros2_publisher.h"
-  #include "mujoco_sim_module/publisher/touch_sensor_ros2_publisher.h"
-  #include "mujoco_sim_module/subscriber/joint_actuator_ros2_subscriber.h"
-
-#endif
-
 namespace YAML {
 template <>
 struct convert<aimrt_mujoco_sim::mujoco_sim_module::MujocoSimModule::Options> {

@@ -5,13 +5,20 @@
 
 #include <vector>
 
-#include "joint_command.pb.h"
 #include "mujoco_sim_module/global.h"
 #include "mujoco_sim_module/subscriber/subscriber_base.h"
 
-namespace aimrt_mujoco_sim::mujoco_sim_module::subscriber {
+#include "aimrt_module_protobuf_interface/channel/protobuf_channel.h"
+#include "aimrt_module_protobuf_interface/util/protobuf_tools.h"
+#include "joint_command.pb.h"
 
-class JointActuatorSubscriber : public SubscriberBase {
+#ifdef AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2
+  #include "aimrt_module_ros2_interface/channel/ros2_channel.h"
+  #include "sensor_ros2/msg/joint_command.hpp"
+#endif
+
+namespace aimrt_mujoco_sim::mujoco_sim_module::subscriber {
+class JointActuatorSubscriberBase : public SubscriberBase {
  public:
   struct Options {
     struct Joint {
@@ -24,31 +31,25 @@ class JointActuatorSubscriber : public SubscriberBase {
   };
 
  public:
-  JointActuatorSubscriber() {}
-  ~JointActuatorSubscriber() override = default;
+  JointActuatorSubscriberBase() = default;
+  virtual ~JointActuatorSubscriberBase() = default;
 
-  void Initialize(YAML::Node options_node) override;
+  virtual void Initialize(YAML::Node options_node) = 0;
+  virtual std::string_view Type() const noexcept = 0;
+
   void Start() override { stop_flag_ = false; }
   void Shutdown() override { stop_flag_ = true; }
 
-  std::string_view Type() const noexcept override { return "joint_actuator"; }
-
-  void SetMj(mjModel* m, mjData* d) override {
-    m_ = m;
-    d_ = d;
-  }
-  void SetSubscriberHandle(aimrt::channel::SubscriberRef subscriber_handle) override {
-    subscriber_ = subscriber_handle;
-  }
+  void SetMj(mjModel* m, mjData* d) override;
+  void SetSubscriberHandle(aimrt::channel::SubscriberRef subscriber_handle) override { subscriber_ = subscriber_handle; }
 
   void ApplyCtrlData() override;
 
- private:
-  void EventHandle(const std::shared_ptr<const aimrt::protocols::sensor::JointCommand>& commands);
-
+ protected:
+  void InitializeBase(YAML::Node options_node);
   void RegisterActuatorAddr();
 
- private:
+ protected:
   struct ActuatorBindJointSensorAddr {
     int32_t pos_addr;
     int32_t vel_addr;
@@ -69,4 +70,30 @@ class JointActuatorSubscriber : public SubscriberBase {
   std::vector<ActuatorBindJointSensorAddr> actuator_bind_joint_sensor_addr_vec_;
 };
 
+class JointActuatorSubscriber : public JointActuatorSubscriberBase {
+ public:
+  JointActuatorSubscriber() = default;
+  ~JointActuatorSubscriber() override = default;
+
+  void Initialize(YAML::Node options_node) override;
+  std::string_view Type() const noexcept override { return "joint_actuator"; }
+
+ private:
+  void EventHandle(const std::shared_ptr<const aimrt::protocols::sensor::JointCommand>& commands);
+};
+
+#ifdef AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2
+class JointActuatorRos2Subscriber : public JointActuatorSubscriberBase {
+ public:
+  JointActuatorRos2Subscriber() = default;
+  ~JointActuatorRos2Subscriber() override = default;
+
+  void Initialize(YAML::Node options_node) override;
+
+  std::string_view Type() const noexcept override { return "joint_actuator_ros2"; }
+
+ private:
+  void EventHandle(const std::shared_ptr<const sensor_ros2::msg::JointCommand>& commands);
+};
+#endif
 }  // namespace aimrt_mujoco_sim::mujoco_sim_module::subscriber

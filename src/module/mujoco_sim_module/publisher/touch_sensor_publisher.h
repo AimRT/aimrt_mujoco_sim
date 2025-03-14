@@ -2,7 +2,6 @@
 // All rights reserved.
 
 #pragma once
-
 #include "aimrt_module_protobuf_interface/channel/protobuf_channel.h"
 #include "aimrt_module_protobuf_interface/util/protobuf_tools.h"
 #include "mujoco_sim_module/global.h"
@@ -10,8 +9,13 @@
 #include "mujoco_sim_module/publisher/utils.h"
 #include "touch_sensor_state.pb.h"
 
+#ifdef AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2
+  #include "aimrt_module_ros2_interface/channel/ros2_channel.h"
+  #include "sensor_ros2/msg/touch_sensor_state.hpp"
+#endif
+
 namespace aimrt_mujoco_sim::mujoco_sim_module::publisher {
-class TouchSensorPublisher : public PublisherBase {
+class TouchSensorPublisherBase : public PublisherBase {
  public:
   struct Options {
     std::vector<std::string> names;
@@ -24,38 +28,29 @@ class TouchSensorPublisher : public PublisherBase {
   };
 
  public:
-  TouchSensorPublisher() = default;
-  ~TouchSensorPublisher() override = default;
+  TouchSensorPublisherBase() = default;
+  virtual ~TouchSensorPublisherBase() override = default;
 
-  void Initialize(YAML::Node options_node) override;
+  virtual void Initialize(YAML::Node options_node) = 0;
+  virtual std::string_view Type() const noexcept override = 0;
+  virtual void PublishSensorData() override = 0;
+
   void Start() override {}
   void Shutdown() override {}
 
-  [[nodiscard]] std::string_view Type() const noexcept override { return "touch_sensor"; }
+  void SetPublisherHandle(aimrt::channel::PublisherRef publisher_handle) override { publisher_ = publisher_handle; }
 
-  void SetPublisherHandle(aimrt::channel::PublisherRef publisher_handle) override {
-    publisher_ = publisher_handle;
-  }
+  void SetExecutor(aimrt::executor::ExecutorRef executor) override { executor_ = executor; };
 
-  void SetMj(mjModel* m, mjData* d) override {
-    m_ = m;
-    d_ = d;
-  }
+  void SetFreq(uint32_t freq) override { channel_frq_ = freq; };
 
-  void SetExecutor(aimrt::executor::ExecutorRef executor) override {
-    executor_ = executor;
-  };
+  void SetMj(mjModel* m, mjData* d) override;
 
-  void SetFreq(uint32_t freq) override {
-    channel_frq_ = freq;
-  };
-
-  void PublishSensorData() override;
-
- private:
+ protected:
   void RegisterSensorAddr();
+  void InitializeBase(YAML::Node options_node);
 
- private:
+ protected:
   struct SensorAddrGroup {
     std::vector<int32_t> addr_vec;
   };
@@ -64,7 +59,6 @@ class TouchSensorPublisher : public PublisherBase {
     std::vector<double> state_vec;
   };
 
- private:
   Options options_;
 
   mjModel* m_ = nullptr;
@@ -84,4 +78,26 @@ class TouchSensorPublisher : public PublisherBase {
   std::vector<std::string> name_vec_;
   std::vector<uint32_t> touch_sensor_num_vec_;
 };
+
+class TouchSensorPublisher : public TouchSensorPublisherBase {
+ public:
+  TouchSensorPublisher() = default;
+  ~TouchSensorPublisher() override = default;
+
+  void Initialize(YAML::Node options_node) override;
+  std::string_view Type() const noexcept override { return "touch_sensor"; }
+  void PublishSensorData() override;
+};
+
+#ifdef AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2
+class TouchSensorRos2Publisher : public TouchSensorPublisherBase {
+ public:
+  TouchSensorRos2Publisher() = default;
+  ~TouchSensorRos2Publisher() override = default;
+
+  void Initialize(YAML::Node options_node) override;
+  std::string_view Type() const noexcept override { return "touch_sensor_ros2"; }
+  void PublishSensorData() override;
+};
+#endif
 }  // namespace aimrt_mujoco_sim::mujoco_sim_module::publisher

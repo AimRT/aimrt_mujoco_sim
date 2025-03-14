@@ -10,9 +10,14 @@
 #include "mujoco_sim_module/publisher/publisher_base.h"
 #include "mujoco_sim_module/publisher/utils.h"
 
+#ifdef AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2
+  #include <sensor_msgs/msg/imu.hpp>
+  #include "aimrt_module_ros2_interface/channel/ros2_channel.h"
+#endif
+
 namespace aimrt_mujoco_sim::mujoco_sim_module::publisher {
 
-class ImuSensorPublisher : public PublisherBase {
+class ImuSensorPublisherBase : public PublisherBase {
  public:
   struct Options {
     std::string bind_site;
@@ -22,59 +27,48 @@ class ImuSensorPublisher : public PublisherBase {
   };
 
  public:
-  ImuSensorPublisher() = default;
-  ~ImuSensorPublisher() override = default;
+  ImuSensorPublisherBase() = default;
+  virtual ~ImuSensorPublisherBase() override = default;
 
-  void Initialize(YAML::Node options_node) override;
+  virtual void Initialize(YAML::Node options_node) = 0;
+  virtual std::string_view Type() const noexcept override = 0;
+  virtual void PublishSensorData() override = 0;
+
   void Start() override {}
   void Shutdown() override {}
 
-  [[nodiscard]] std::string_view Type() const noexcept override { return "imu_sensor"; }
+  void SetPublisherHandle(aimrt::channel::PublisherRef publisher_handle) override { publisher_ = publisher_handle; }
 
-  void SetPublisherHandle(aimrt::channel::PublisherRef publisher_handle) override {
-    publisher_ = publisher_handle;
-  }
+  void SetExecutor(aimrt::executor::ExecutorRef executor) override { executor_ = executor; };
 
-  void SetMj(mjModel* m, mjData* d) override {
-    m_ = m;
-    d_ = d;
-  }
+  void SetFreq(uint32_t freq) override { channel_frq_ = freq; };
 
-  void SetExecutor(aimrt::executor::ExecutorRef executor) override {
-    executor_ = executor;
-  };
+  void SetMj(mjModel* m, mjData* d) override;
 
-  void SetFreq(uint32_t freq) override {
-    channel_frq_ = freq;
-  };
-
-  void PublishSensorData() override;
-
- private:
+ protected:
+  void InitializeBase(YAML::Node options_node);
   void RegisterSensorAddr();
+  void CopySensorData(int addr, auto& dest, size_t n);
 
- private:
+ protected:
   struct SensorAddrGroup {
-    int32_t framequat_addr = -1;
-    int32_t gyro_addr = -1;
-    int32_t accelerometer_addr = -1;
+    int32_t framequat_addr;
+    int32_t gyro_addr;
+    int32_t accelerometer_addr;
   };
 
   struct SensorStateGroup {
     struct {
-      double w = 0.0, x = 0.0, y = 0.0, z = 0.0;
+      double w, x, y, z;
     } orientation;
     struct {
-      double x = 0.0, y = 0.0, z = 0.0;
+      double x, y, z;
     } angular_velocity;
     struct {
-      double x = 0.0, y = 0.0, z = 0.0;
+      double x, y, z;
     } linear_acceleration;
   };
 
-  void CopySensorData(int addr, auto& dest, size_t n);
-
- private:
   Options options_;
 
   mjModel* m_ = nullptr;
@@ -86,10 +80,30 @@ class ImuSensorPublisher : public PublisherBase {
   uint32_t channel_frq_ = 1000;
   double avg_interval_base_ = 1.0;
   double avg_interval_ = 0;
-
+  size_t imu_num_ = 0;
   uint32_t counter_ = 0;
 
   SensorAddrGroup sensor_addr_group_;
 };
 
+class ImuSensorPublisher : public ImuSensorPublisherBase {
+ public:
+  ImuSensorPublisher() = default;
+  ~ImuSensorPublisher() override = default;
+
+  void Initialize(YAML::Node options_node) override;
+  std::string_view Type() const noexcept override { return "imu_sensor"; }
+  void PublishSensorData() override;
+};
+#ifdef AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2
+class ImuSensorRos2Publisher : public ImuSensorPublisherBase {
+ public:
+  ImuSensorRos2Publisher() = default;
+  ~ImuSensorRos2Publisher() override = default;
+
+  void Initialize(YAML::Node options_node) override;
+  std::string_view Type() const noexcept override { return "imu_sensor_ros2"; }
+  void PublishSensorData() override;
+};
+#endif
 }  // namespace aimrt_mujoco_sim::mujoco_sim_module::publisher
