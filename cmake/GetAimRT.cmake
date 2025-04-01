@@ -6,7 +6,7 @@ include(FetchContent)
 message(STATUS "get aimrt ...")
 
 set(aimrt_DOWNLOAD_URL
-    "https://github.com/AimRT/AimRT/archive/v0.10.0-rc1.tar.gz"
+    "https://github.com/AimRT/AimRT/archive/refs/tags/v0.10.0.tar.gz"
     CACHE STRING "")
 
 if(aimrt_LOCAL_SOURCE)

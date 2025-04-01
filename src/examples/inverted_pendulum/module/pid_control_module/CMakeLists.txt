@@ -37,6 +37,7 @@ target_link_libraries(
   PUBLIC aimrt::interface::aimrt_module_cpp_interface
          aimrt::interface::aimrt_module_protobuf_interface
          aimrt::protocols::sensor_pb_gencode
+         aimrt::protocols::actuator_pb_gencode
          aimrt_mujoco_sim::protocols::inverted_pendulum_aimrt_rpc_gencode)
 
 # Set test of target

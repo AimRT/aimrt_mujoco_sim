@@ -14,7 +14,7 @@
 
 #ifdef AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2
   #include "aimrt_module_ros2_interface/channel/ros2_channel.h"
-  #include "sensor_ros2/msg/joint_command.hpp"
+  #include "aimrt_msgs/msg/joint_command_array.hpp"
 #endif
 
 namespace aimrt_mujoco_sim::mujoco_sim_module::subscriber {
@@ -79,7 +79,7 @@ class JointActuatorSubscriber : public JointActuatorSubscriberBase {
   std::string_view Type() const noexcept override { return "joint_actuator"; }
 
  private:
-  void EventHandle(const std::shared_ptr<const aimrt::protocols::sensor::JointCommand>& commands);
+  void EventHandle(const std::shared_ptr<const aimrt::protocols::sensor::JointCommandArray>& commands);
 };
 
 #ifdef AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2
@@ -93,7 +93,7 @@ class JointActuatorRos2Subscriber : public JointActuatorSubscriberBase {
   std::string_view Type() const noexcept override { return "joint_actuator_ros2"; }
 
  private:
-  void EventHandle(const std::shared_ptr<const sensor_ros2::msg::JointCommand>& commands);
+  void EventHandle(const std::shared_ptr<const aimrt_msgs::msg::JointCommandArray>& commands);
 };
 #endif
 }  // namespace aimrt_mujoco_sim::mujoco_sim_module::subscriber

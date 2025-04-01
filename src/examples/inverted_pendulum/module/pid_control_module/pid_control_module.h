@@ -30,12 +30,12 @@ class PidControlModule : public aimrt::ModuleBase {
   void Shutdown() override;
 
  private:
-  void EventHandle(const std::shared_ptr<const aimrt::protocols::sensor::JointState>& data);
+  void EventHandle(const std::shared_ptr<const aimrt::protocols::sensor::JointStateArray>& data);
 
  private:
   aimrt::CoreRef core_;
 
-  std::unique_ptr<aimrt::channel::PublisherProxy<aimrt::protocols::sensor::JointCommand>> publisher_proxy_;
+  std::unique_ptr<aimrt::channel::PublisherProxy<aimrt::protocols::sensor::JointCommandArray>> publisher_proxy_;
   std::unique_ptr<PidControlServiceImpl> service_ptr_;
 
   PIDController controller_;

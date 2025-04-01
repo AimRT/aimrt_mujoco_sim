@@ -84,7 +84,7 @@ void JointSensorPublisherBase::InitializeBase(YAML::Node options_node) {
 void JointSensorPublisher::Initialize(YAML::Node options_node) {
   InitializeBase(options_node);
 
-  AIMRT_CHECK_ERROR_THROW(aimrt::channel::RegisterPublishType<aimrt::protocols::sensor::JointState>(publisher_),
+  AIMRT_CHECK_ERROR_THROW(aimrt::channel::RegisterPublishType<aimrt::protocols::sensor::JointStateArray>(publisher_),
                           "Register publish type failed.");
 }
 
@@ -104,7 +104,7 @@ void JointSensorPublisher::PublishSensorData() {
   }
 
   executor_.Execute([this, state_array = std::move(state_array)]() {
-    aimrt::protocols::sensor::JointState joint_state;
+    aimrt::protocols::sensor::JointStateArray joint_state;
     for (int i = 0; i < joint_num_; ++i) {
       auto* data = joint_state.add_joints();
       data->set_name(name_vec_[i]);
@@ -130,7 +130,7 @@ void JointSensorPublisher::PublishSensorData() {
 void JointSensorRos2Publisher::Initialize(YAML::Node options_node) {
   InitializeBase(options_node);
 
-  AIMRT_CHECK_ERROR_THROW(aimrt::channel::RegisterPublishType<sensor_ros2::msg::JointState>(publisher_),
+  AIMRT_CHECK_ERROR_THROW(aimrt::channel::RegisterPublishType<aimrt_msgs::msg::JointStateArray>(publisher_),
                           "Register publish type failed.");
 }
 
@@ -150,7 +150,7 @@ void JointSensorRos2Publisher::PublishSensorData() {
   }
 
   executor_.Execute([this, state_array = std::move(state_array)]() {
-    sensor_ros2::msg::JointState joint_state;
+    aimrt_msgs::msg::JointStateArray joint_state;
 
     auto timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     joint_state.header.stamp.sec = timestamp / 1e9;
@@ -159,7 +159,7 @@ void JointSensorRos2Publisher::PublishSensorData() {
 
     joint_state.joints.resize(joint_num_);
     for (int i = 0; i < joint_num_; ++i) {
-      sensor_ros2::msg::SingleJointState state;
+      aimrt_msgs::msg::JointState state;
       state.name = name_vec_[i];
       state.position = state_array[i].jointpos_state;
       state.velocity = state_array[i].jointvel_state;

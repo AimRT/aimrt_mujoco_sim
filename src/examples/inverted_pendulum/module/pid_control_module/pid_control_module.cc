@@ -25,7 +25,7 @@ bool PidControlModule::Initialize(aimrt::CoreRef core) {
     // Register joint state subscriber
     auto subscriber = core_.GetChannelHandle().GetSubscriber(topic_name_sub);
     AIMRT_CHECK_ERROR_THROW(subscriber, "Get subscriber for topic '{}' failed.", topic_name_sub);
-    bool ret = aimrt::channel::Subscribe<aimrt::protocols::sensor::JointState>(
+    bool ret = aimrt::channel::Subscribe<aimrt::protocols::sensor::JointStateArray>(
         subscriber,
         std::bind(&PidControlModule::EventHandle, this, std::placeholders::_1));
     AIMRT_CHECK_ERROR_THROW(ret, "Subscribe failed.");
@@ -33,9 +33,9 @@ bool PidControlModule::Initialize(aimrt::CoreRef core) {
     // Register joint command publisher
     auto publisher = core_.GetChannelHandle().GetPublisher(topic_name_pub);
     AIMRT_CHECK_ERROR_THROW(publisher, "Get publisher for topic '{}' failed.", topic_name_pub);
-    ret = aimrt::channel::RegisterPublishType<aimrt::protocols::sensor::JointCommand>(publisher);
+    ret = aimrt::channel::RegisterPublishType<aimrt::protocols::sensor::JointCommandArray>(publisher);
     AIMRT_CHECK_ERROR_THROW(ret, "Register publishType failed.");
-    publisher_proxy_ = std::make_unique<aimrt::channel::PublisherProxy<aimrt::protocols::sensor::JointCommand>>(publisher);
+    publisher_proxy_ = std::make_unique<aimrt::channel::PublisherProxy<aimrt::protocols::sensor::JointCommandArray>>(publisher);
 
     // Register service
     service_ptr_ = std::make_unique<PidControlServiceImpl>(controller_);
@@ -62,7 +62,7 @@ bool PidControlModule::Start() { return true; }
 
 void PidControlModule::Shutdown() {}
 
-void PidControlModule::EventHandle(const std::shared_ptr<const aimrt::protocols::sensor::JointState>& data) {
+void PidControlModule::EventHandle(const std::shared_ptr<const aimrt::protocols::sensor::JointStateArray>& data) {
   // adjust to [-π, π] range
   double normalized = fmod(data->joints()[1].position(), 2 * M_PI);
   if (normalized > M_PI) {
@@ -75,7 +75,7 @@ void PidControlModule::EventHandle(const std::shared_ptr<const aimrt::protocols:
 
   double control_output = controller_.Compute(target, normalized);
 
-  aimrt::protocols::sensor::JointCommand msg;
+  aimrt::protocols::sensor::JointCommandArray msg;
   auto* joint_cmd = msg.add_joints();
   joint_cmd->set_name("center_joint");
   joint_cmd->set_effort(control_output);

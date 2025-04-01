@@ -26,7 +26,8 @@ target_sources(${CUR_TARGET_NAME} PRIVATE ${src})
 set(BASE_DEPENDENCIES
     aimrt::interface::aimrt_type_support_pkg_c_interface #
     aimrt::interface::aimrt_module_protobuf_interface #
-    aimrt::protocols::sensor_pb_gencode)
+    aimrt::protocols::sensor_pb_gencode# 
+    aimrt::protocols::actuator_pb_gencode)
 
 if(AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2)
   find_package(rclcpp REQUIRED)
@@ -40,10 +41,10 @@ if(AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2)
             aimrt::interface::aimrt_module_ros2_interface #
             sensor_msgs::sensor_msgs__rosidl_generator_cpp #
             sensor_msgs::sensor_msgs__rosidl_typesupport_cpp #
-            sensor_ros2::sensor_ros2__rosidl_generator_cpp #
-            sensor_ros2::sensor_ros2__rosidl_typesupport_cpp #
-            sensor_ros2::sensor_ros2__rosidl_typesupport_fastrtps_cpp #
-            sensor_ros2::sensor_ros2__rosidl_typesupport_introspection_cpp)
+            aimrt_msgs::aimrt_msgs__rosidl_generator_cpp #
+            aimrt_msgs::aimrt_msgs__rosidl_typesupport_cpp #
+            aimrt_msgs::aimrt_msgs__rosidl_typesupport_fastrtps_cpp #
+            aimrt_msgs::aimrt_msgs__rosidl_typesupport_introspection_cpp)
 else()
   target_link_libraries(${CUR_TARGET_NAME} PRIVATE ${BASE_DEPENDENCIES})
 endif()

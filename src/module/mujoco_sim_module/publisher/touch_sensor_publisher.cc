@@ -105,7 +105,7 @@ void TouchSensorPublisherBase::InitializeBase(YAML::Node options_node) {
 void TouchSensorPublisher::Initialize(YAML::Node options_node) {
   InitializeBase(options_node);
 
-  AIMRT_CHECK_ERROR_THROW(aimrt::channel::RegisterPublishType<aimrt::protocols::sensor::TouchSensorState>(publisher_), "Register touch sensor publish type failed.");
+  AIMRT_CHECK_ERROR_THROW(aimrt::channel::RegisterPublishType<aimrt::protocols::sensor::TouchSensorStateArray>(publisher_), "Register touch sensor publish type failed.");
 }
 
 void TouchSensorPublisher::PublishSensorData() {
@@ -126,7 +126,7 @@ void TouchSensorPublisher::PublishSensorData() {
   }
 
   executor_.Execute([this, state_array = std::move(state_array)]() {
-    aimrt::protocols::sensor::TouchSensorState state;
+    aimrt::protocols::sensor::TouchSensorStateArray state;
 
     auto timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     state.mutable_header()->set_time_stamp(timestamp);
@@ -159,7 +159,7 @@ void TouchSensorPublisher::PublishSensorData() {
 #ifdef AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2
 void TouchSensorRos2Publisher::Initialize(YAML::Node options_node) {
   InitializeBase(options_node);
-  AIMRT_CHECK_ERROR_THROW(aimrt::channel::RegisterPublishType<sensor_ros2::msg::TouchSensorState>(publisher_), "Register touch sensor publish type failed.");
+  AIMRT_CHECK_ERROR_THROW(aimrt::channel::RegisterPublishType<aimrt_msgs::msg::TouchSensorStateArray>(publisher_), "Register touch sensor publish type failed.");
 }
 
 void TouchSensorRos2Publisher::PublishSensorData() {
@@ -180,7 +180,7 @@ void TouchSensorRos2Publisher::PublishSensorData() {
   }
 
   executor_.Execute([this, state_array = std::move(state_array)]() {
-    sensor_ros2::msg::TouchSensorState state;
+    aimrt_msgs::msg::TouchSensorStateArray state;
 
     auto timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     state.header.stamp.sec = timestamp / 1e9;
@@ -193,7 +193,7 @@ void TouchSensorRos2Publisher::PublishSensorData() {
     for (size_t i = 0; i < touch_sensor_group_num_; ++i) {
       state.names[i] = name_vec_[i];
 
-      sensor_ros2::msg::SingleTouchSensorState single_state;
+      aimrt_msgs::msg::TouchSensorState single_state;
       single_state.pressure.resize(touch_sensor_num_vec_[i]);
 
       for (size_t j = 0; j < touch_sensor_num_vec_[i]; ++j) {

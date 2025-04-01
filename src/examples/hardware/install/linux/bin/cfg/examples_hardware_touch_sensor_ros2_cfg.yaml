@@ -11,7 +11,7 @@ aimrt:
             - path: ./libhardware_type_supprot_pkg.so        
           topic_meta_list:
             - topic_name: /examples_hardware/touch_sensor/touch_sensor_state
-              msg_type: ros2:sensor_ros2/msg/TouchSensorState    
+              msg_type: ros2:aimrt_msgs/msg/TouchSensorStateArray    
               echo_type: json
   log:
     core_lvl: INFO # Trace/Debug/Info/Warn/Error/Fatal/Off

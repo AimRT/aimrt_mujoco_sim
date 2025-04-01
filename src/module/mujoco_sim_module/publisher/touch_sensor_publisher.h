@@ -11,7 +11,7 @@
 
 #ifdef AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2
   #include "aimrt_module_ros2_interface/channel/ros2_channel.h"
-  #include "sensor_ros2/msg/touch_sensor_state.hpp"
+  #include "aimrt_msgs/msg/touch_sensor_state_array.hpp"
 #endif
 
 namespace aimrt_mujoco_sim::mujoco_sim_module::publisher {

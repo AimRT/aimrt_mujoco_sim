@@ -18,7 +18,7 @@ aimrt:
             - path: ./libhardware_type_supprot_pkg.so        
           topic_meta_list:
             - topic_name: /examples_hardware/joint/joint_state
-              msg_type: pb:aimrt.protocols.sensor.JointState    
+              msg_type: pb:aimrt.protocols.sensor.JointStateArray    
               echo_type: json
   log:
     core_lvl: INFO # Trace/Debug/Info/Warn/Error/Fatal/Off

@@ -12,22 +12,22 @@
 #ifdef AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2
   #include <sensor_msgs/msg/imu.hpp>
   #include "aimrt_module_ros2_interface/util/ros2_type_support.h"
-  #include "sensor_ros2/msg/joint_command.hpp"
-  #include "sensor_ros2/msg/joint_state.hpp"
-  #include "sensor_ros2/msg/touch_sensor_state.hpp"
+  #include "aimrt_msgs/msg/joint_command_array.hpp"
+  #include "aimrt_msgs/msg/joint_state_array.hpp"
+  #include "aimrt_msgs/msg/touch_sensor_state_array.hpp"
 #endif
 
 static const aimrt_type_support_base_t* type_support_array[]{
     aimrt::GetProtobufMessageTypeSupport<aimrt::protocols::sensor::ImuState>(),
-    aimrt::GetProtobufMessageTypeSupport<aimrt::protocols::sensor::JointState>(),
-    aimrt::GetProtobufMessageTypeSupport<aimrt::protocols::sensor::JointCommand>(),
-    aimrt::GetProtobufMessageTypeSupport<aimrt::protocols::sensor::TouchSensorState>(),
+    aimrt::GetProtobufMessageTypeSupport<aimrt::protocols::sensor::JointStateArray>(),
+    aimrt::GetProtobufMessageTypeSupport<aimrt::protocols::sensor::JointCommandArray>(),
+    aimrt::GetProtobufMessageTypeSupport<aimrt::protocols::sensor::TouchSensorStateArray>(),
 
 #ifdef AIMRT_MUJOCO_SIM_BUILD_WITH_ROS2
     aimrt::GetRos2MessageTypeSupport<sensor_msgs::msg::Imu>(),
-    aimrt::GetRos2MessageTypeSupport<sensor_ros2::msg::JointState>(),
-    aimrt::GetRos2MessageTypeSupport<sensor_ros2::msg::JointCommand>(),
-    aimrt::GetRos2MessageTypeSupport<sensor_ros2::msg::TouchSensorState>(),
+    aimrt::GetRos2MessageTypeSupport<aimrt_msgs::msg::JointStateArray>(),
+    aimrt::GetRos2MessageTypeSupport<aimrt_msgs::msg::JointCommandArray>(),
+    aimrt::GetRos2MessageTypeSupport<aimrt_msgs::msg::TouchSensorStateArray>(),
 #endif
 };
 

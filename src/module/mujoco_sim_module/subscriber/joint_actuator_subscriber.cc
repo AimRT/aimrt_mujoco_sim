@@ -94,13 +94,13 @@ void JointActuatorSubscriberBase::InitializeBase(YAML::Node options_node) {
 void JointActuatorSubscriber::Initialize(YAML::Node options_node) {
   InitializeBase(options_node);
 
-  AIMRT_CHECK_ERROR_THROW(aimrt::channel::Subscribe<aimrt::protocols::sensor::JointCommand>(
+  AIMRT_CHECK_ERROR_THROW(aimrt::channel::Subscribe<aimrt::protocols::sensor::JointCommandArray>(
                               subscriber_,
                               std::bind(&JointActuatorSubscriber::EventHandle, this, std::placeholders::_1)),
                           "Subscribe failed.");
 }
 
-void JointActuatorSubscriber::EventHandle(const std::shared_ptr<const aimrt::protocols::sensor::JointCommand>& commands) {
+void JointActuatorSubscriber::EventHandle(const std::shared_ptr<const aimrt::protocols::sensor::JointCommandArray>& commands) {
   if (stop_flag_) [[unlikely]]
     return;
 
@@ -144,12 +144,12 @@ void JointActuatorSubscriber::EventHandle(const std::shared_ptr<const aimrt::pro
 void JointActuatorRos2Subscriber::Initialize(YAML::Node options_node) {
   InitializeBase(options_node);
 
-  AIMRT_CHECK_ERROR_THROW(aimrt::channel::Subscribe<sensor_ros2::msg::JointCommand>(
+  AIMRT_CHECK_ERROR_THROW(aimrt::channel::Subscribe<aimrt_msgs::msg::JointCommandArray>(
                               subscriber_,
                               std::bind(&JointActuatorRos2Subscriber::EventHandle, this, std::placeholders::_1)),
                           "Subscribe failed.");
 }
-void JointActuatorRos2Subscriber::EventHandle(const std::shared_ptr<const sensor_ros2::msg::JointCommand>& commands) {
+void JointActuatorRos2Subscriber::EventHandle(const std::shared_ptr<const aimrt_msgs::msg::JointCommandArray>& commands) {
   if (stop_flag_) [[unlikely]]
     return;
 
@@ -162,7 +162,7 @@ void JointActuatorRos2Subscriber::EventHandle(const std::shared_ptr<const sensor
     auto itr = std::ranges::find(joint_names_vec_, command.name);
     if (itr == joint_names_vec_.end()) [[unlikely]] {
       AIMRT_WARN("Invalid msg for topic '{}', msg: {}, Joint name '{}' is not matched.",
-                 subscriber_.GetTopic(), sensor_ros2::msg::to_yaml(*commands), command.name);
+                 subscriber_.GetTopic(), aimrt_msgs::msg::to_yaml(*commands), command.name);
 
       delete[] new_command_array;
       return;
