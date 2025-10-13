@@ -20,16 +20,28 @@ std::optional<int32_t> GetJointSensorIdByJointName(const mjModel* m, std::string
   return std::nullopt;
 }
 
-std::optional<int32_t> GetJointvelIdByJointName(const mjModel* m, std::string_view joint_name) {
-  return GetJointSensorIdByJointName(m, joint_name, mjSENS_JOINTVEL);
+std::optional<int32_t> GetJointposIdByJointName(const mjModel* m, std::string_view joint_name) {
+  auto sensor_id = GetJointSensorIdByJointName(m, joint_name, mjSENS_JOINTPOS);
+  if (!sensor_id.has_value()) {
+    return std::nullopt;
+  }
+  return m->sensor_adr[sensor_id.value()];
 }
 
-std::optional<int32_t> GetJointposIdByJointName(const mjModel* m, std::string_view joint_name) {
-  return GetJointSensorIdByJointName(m, joint_name, mjSENS_JOINTPOS);
+std::optional<int32_t> GetJointvelIdByJointName(const mjModel* m, std::string_view joint_name) {
+  auto sensor_id = GetJointSensorIdByJointName(m, joint_name, mjSENS_JOINTVEL);
+  if (!sensor_id.has_value()) {
+    return std::nullopt;
+  }
+  return m->sensor_adr[sensor_id.value()];
 }
 
 std::optional<int32_t> GetJointactfrcIdByJointName(const mjModel* m, std::string_view joint_name) {
-  return GetJointSensorIdByJointName(m, joint_name, mjSENS_JOINTACTFRC);
+  auto sensor_id = GetJointSensorIdByJointName(m, joint_name, mjSENS_JOINTACTFRC);
+  if (!sensor_id.has_value()) {
+    return std::nullopt;
+  }
+  return m->sensor_adr[sensor_id.value()];
 }
 
 std::optional<std::string> GetJointSensorNameByJointName(const mjModel* m, std::string_view joint_name, mjtSensor sensor_type) {
