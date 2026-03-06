@@ -15,6 +15,8 @@ set(CUR_TARGET_ALIAS_NAME ${CUR_SUPERIOR_NAMESPACE}::${CUR_DIR})
 # Set file collection
 file(GLOB_RECURSE src ${CMAKE_CURRENT_SOURCE_DIR}/*.cc)
 
+find_package(fastcdr REQUIRED)
+
 # Add target
 add_library(${CUR_TARGET_NAME} SHARED)
 add_library(${CUR_TARGET_ALIAS_NAME} ALIAS ${CUR_TARGET_NAME})
